@@ -31,19 +31,6 @@ func (tc *tweetController) FindAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, tc.tweets)
 }
 
-func (tc *tweetController) FindById(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	for _, tweet := range tc.tweets {
-		if tweet.ID == id {
-			ctx.JSON(http.StatusOK, tweet)
-			return
-		}
-	}
-
-	ctx.JSON(http.StatusNotFound, gin.H{"message": "Tweet not found"})
-}
-
 func (tc *tweetController) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	found := false
