@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-docker-postgres/api/routes"
+	routes "go-docker-postgres/api/routes"
 
 	"github.com/gin-gonic/gin"
 )

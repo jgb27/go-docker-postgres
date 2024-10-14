@@ -7,12 +7,12 @@ import (
 )
 
 func Routes(router *gin.Engine) *gin.RouterGroup {
-
+	tweetController := controllers.NewTweetController()
 	routes := router.Group("/tweet")
 	{
-		routes.GET("/", controllers.NewTweetController().FindAll)
-		routes.POST("/", controllers.NewTweetController().Create)
-		routes.DELETE("/:id", controllers.NewTweetController().Delete)
+		routes.GET("/", tweetController.FindAll)
+		routes.POST("/", tweetController.Create)
+		routes.DELETE("/:id", tweetController.Delete)
 	}
 
 	return routes

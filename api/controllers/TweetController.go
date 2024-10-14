@@ -15,6 +15,10 @@ func NewTweetController() *tweetController {
 	return &tweetController{}
 }
 
+func (tc *tweetController) FindAll(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, tc.tweets)
+}
+
 func (tc *tweetController) Create(ctx *gin.Context) {
 	tweet := entities.NewTweet()
 
@@ -24,11 +28,7 @@ func (tc *tweetController) Create(ctx *gin.Context) {
 	}
 
 	tc.tweets = append(tc.tweets, *tweet)
-	ctx.JSON(http.StatusOK, tc.tweets)
-}
-
-func (tc *tweetController) FindAll(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, tc.tweets)
+	ctx.JSON(http.StatusOK, tweet)
 }
 
 func (tc *tweetController) Delete(ctx *gin.Context) {
@@ -48,5 +48,5 @@ func (tc *tweetController) Delete(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, tc.tweets)
+	ctx.JSON(http.StatusOK, nil)
 }
