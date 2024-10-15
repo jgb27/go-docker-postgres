@@ -1,25 +1,48 @@
 package controllers
 
 import (
+	"fmt"
 	entities "go-docker-postgres/api/entities"
+	database "go-docker-postgres/db"
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type tweetController struct {
-	tweets []entities.Tweet
+var db = database.ConnectToDatabase()
+
+func FindAll(ctx *gin.Context) {
+	rows, err := db.Query("SELECT * FROM tweets")
+
+	if err != nil {
+		fmt.Println("Erro ao executar a query:", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	var tweets []entities.Tweet
+	for rows.Next() {
+		var tweet entities.Tweet
+		err := rows.Scan(&tweet.ID, &tweet.Content)
+		if err != nil {
+			fmt.Println("Erro ao escanear os resultados:", err)
+			continue
+		}
+		tweets = append(tweets, tweet)
+	}
+
+	if err := rows.Err(); err != nil {
+		fmt.Println("Erro geral ao iterar sobre as linhas:", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, tweets)
 }
 
-func NewTweetController() *tweetController {
-	return &tweetController{}
-}
-
-func (tc *tweetController) FindAll(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, tc.tweets)
-}
-
-func (tc *tweetController) Create(ctx *gin.Context) {
+func Create(ctx *gin.Context) {
 	tweet := entities.NewTweet()
 
 	if err := ctx.BindJSON(&tweet); err != nil {
@@ -27,24 +50,23 @@ func (tc *tweetController) Create(ctx *gin.Context) {
 		return
 	}
 
-	tc.tweets = append(tc.tweets, *tweet)
-	ctx.JSON(http.StatusOK, tweet)
-}
+	_, err := db.Exec("INSERT INTO tweets (id, content) values ($1, $2)", tweet.ID, tweet.Content)
 
-func (tc *tweetController) Delete(ctx *gin.Context) {
-	id := ctx.Param("id")
-	found := false
-
-	for index, tweet := range tc.tweets {
-		if tweet.ID == id {
-			tc.tweets = append(tc.tweets[:index], tc.tweets[index+1:]...)
-			found = true
-			break
-		}
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
 	}
 
-	if !found {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": "Tweet not found"})
+	ctx.JSON(http.StatusOK, nil)
+}
+
+func Delete(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	_, err := db.Exec("DELETE FROM tweets where id = $1", id)
+
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err})
 		return
 	}
 
