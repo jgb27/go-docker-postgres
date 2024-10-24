@@ -11,5 +11,5 @@ func main() {
 	database.ConnectToDatabase()
 	app := gin.Default()
 	routes.Routes(app)
-	app.Run(":8080")
+	app.Run(":3000")
 }
