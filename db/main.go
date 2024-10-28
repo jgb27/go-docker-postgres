@@ -29,7 +29,7 @@ func ConnectToDatabase() *sql.DB {
 	pDB := goDotEnvVariable("POSTGRES_DB")
 	pHost := goDotEnvVariable("POSTGRES_HOST")
 
-	urlDB := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432", pHost, pUser, pPass, pDB)
+	urlDB := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", pUser, pPass, pHost, pDB)
 
 	db, err = sql.Open("postgres", urlDB)
 	if err != nil {
