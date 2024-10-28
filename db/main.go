@@ -14,12 +14,11 @@ var db *sql.DB
 
 func goDotEnvVariable(key string) string {
 
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file: %s", err)
+	if godotenv.Load(".env") != nil {
+		if godotenv.Load("/etc/secrets/.env") != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
-
 	return os.Getenv(key)
 }
 
